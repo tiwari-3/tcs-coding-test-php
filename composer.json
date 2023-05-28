@@ -1,18 +1,5 @@
 {
-    "name": "tcs-coding-test-php",
     "require-dev": {
         "phpunit/phpunit": "^9"
-    },
-    "autoload": {
-        "psr-4": {
-            "tcs-coding-test-php\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "mayank tiwari",
-            "email": "tiwari.mayank4889@gmail.com"
-        }
-    ],
-    "require": {}
+    }   
 }
