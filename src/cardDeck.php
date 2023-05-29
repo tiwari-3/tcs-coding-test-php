@@ -21,6 +21,7 @@ class cardDeck
     // Arrays to store processed card values for evaluation
     private $cardValue = array();
     private $createArrCards = array();
+    private $straightArray = array();
 
     // Constructor: Initialize the deck of cards
     public function __construct() {
@@ -29,19 +30,9 @@ class cardDeck
 
     // Purpose:: Initialize the deck of cards
     private function initCardDeck() {
-        $this->suits = shuffle($this->suits);
+        shuffle($this->suits);
         foreach($this->suits as $suit) {
             foreach ($this->cards as $card) {
-                // Map numeric card values to corresponding letters
-                if($card == 1){
-                    $card = 'a'; 
-                }else if($card == 11){
-                    $card = 'j';
-                }else if($card == 12){
-                    $card = 'q';
-                }else if($card == 13){
-                    $card = 'k';
-                }
                 $this->createArrCards[] = $card.$suit; 
             }
         }
@@ -57,7 +48,7 @@ class cardDeck
     public function listCards() {
         foreach($this->arrCards as $card) {
             $this->str .= '<img src="../images/'.$card.'.jpg" height="80" width="80"/>&nbsp;';
-            if($card == 'kc' || $card == 'kd' || $card == 'kh' || $card == 'ks'){
+            if($card == '13c' || $card == '13d' || $card == '13h' || $card == '13s'){
                 $this->str .= '<br/><br/>';
             }
         }
@@ -84,17 +75,6 @@ class cardDeck
                 $this->cardValue = str_split($value,2);  
             }
 
-            // Convert letter card values back to numeric form
-            if($this->cardValue[0] == 'a'){
-                $this->cardValue[0] = 1; 
-            }else if($this->cardValue[0] == 'j'){
-                $this->cardValue[0] = 11;
-            }else if($this->cardValue[0] == 'q'){
-                $this->cardValue[0] = 12;
-            }else if($this->cardValue[0] == 'k'){
-                $this->cardValue[0] = 13;
-            }
-            
             $this->handCard[] = $this->cardValue[0];
             $this->handSuit[] = $this->cardValue[1];
         }
@@ -103,21 +83,44 @@ class cardDeck
         $sResult = $this->isStraight($this->handCard);
         $fResult = $this->isFlush($this->handSuit);
 
+        for($i=0; $i < count($this->cardHands); $i++){
+            $this->straightArray[$this->handSuit[$i]] = $this->handCard[$i];
+        }  
+
+        // Determine the type of hand based on straight and flush results
+        if($sResult && $fResult){
+            sort($this->handCard);
+            if(in_array('13', $this->handCard) && in_array('1', $this->handCard)){
+                $firstValue = array_shift($this->handCard); 
+                array_push($this->handCard, $firstValue);        
+            }
+            for($i=0; $i < count($this->cardHands); $i++){
+                $this->cardHands[$i] = $this->handCard[$i].$this->handSuit[$i];
+            }
+            $this->str .= 'Hand is straight flush';
+        }elseif($sResult){
+            asort($this->straightArray);
+            if(in_array('13', $this->handCard) && in_array('1', $this->handCard)){
+                $firstValue = array_shift($this->handCard); 
+                array_push($this->handCard, $firstValue);        
+            }
+            $i = 0;
+            foreach($this->straightArray as $key => $val){
+                $this->cardHands[$i] = $val.$key;
+                $i++;
+            }
+            $this->str .= 'Hand is straight';
+        }else{
+            $this->str .= 'Drawn hand is neither straight nor straight flush. Please try again.';
+        }
+
+        $this->str .= '</br>';
+
         // Generate HTML representation of the drawn hand
         foreach($this->cardHands as $card) {
            $this->str .= '<img src="../images/'.$card.'.jpg" height="80" width="80"/>&nbsp;';
         }
 
-        $this->str .= '</br>';
-
-        // Determine the type of hand based on straight and flush results
-        if($sResult && $fResult){
-            $this->str .= 'Hand is straight flush';
-        }elseif($sResult){
-            $this->str .= 'Hand is straight';
-        }else{
-            $this->str .= 'Drawn hand is neither straight nor straight flush. Please try again.';
-        }
         return $this->str;
     }
 
