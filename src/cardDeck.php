@@ -29,6 +29,7 @@ class cardDeck
 
     // Purpose:: Initialize the deck of cards
     private function initCardDeck() {
+        $this->suits = shuffle($this->suits);
         foreach($this->suits as $suit) {
             foreach ($this->cards as $card) {
                 // Map numeric card values to corresponding letters
@@ -76,7 +77,6 @@ class cardDeck
 
         // Extract the card values and suits from the drawn hand
         foreach($this->cardHands as $value){
-            $this->cardValue = array();
             $length = strlen($value);
             if($length == 2){
                 $this->cardValue = str_split($value,1);
