@@ -127,6 +127,9 @@ class cardDeck
     // Purpose:: Check if the card values form a straight sequence
     public function isStraight($handCard){
         sort($handCard);
+        if(in_array('13',$handCard) && in_array('1', $handCard)){
+            array_shift($handCard); 
+        }
         $prev = '0';
         $flag = true;
         foreach($handCard as $val){
