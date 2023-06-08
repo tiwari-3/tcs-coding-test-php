@@ -1,131 +1,121 @@
-<?php 
-class cardDeck
+<?php
+
+// Include the classes and code here...
+
+/**
+ * CardDeck class represents the deck of cards.
+ */
+class CardDeck
 {
-    // Array of suits and cards
-    private $suits = array('c', 'd', 'h', 's');
-    private $cards = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
+    private $cards;
 
-    // Array to store the deck of cards
-    private $arrCards;
-
-    // String to store HTML representation of cards
-    private $str;
-
-    // Array to store the drawn card hands
-    private $cardHands = array();
-
-    // Arrays to store the extracted card values and suits from the drawn hand
-    private $handCard = array();
-    private $handSuit = array();
-
-    // Arrays to store processed card values for evaluation
-    private $cardValue = array();
-    private $createArrCards = array();
-    private $straightArray = array();
-
-    // Constructor: Initialize the deck of cards
-    public function __construct() {
-        $this->arrCards = $this->initCardDeck();
+    public function __construct(array $cards)
+    {
+        $this->cards = $cards;
     }
 
-    // Purpose:: Initialize the deck of cards
-    private function initCardDeck() {
-        shuffle($this->suits);
-        foreach($this->suits as $suit) {
-            foreach ($this->cards as $card) {
-                $this->createArrCards[] = $card.$suit; 
-            }
-        }
-        return $this->createArrCards;
+    public function getCards(): array
+    {
+        return $this->cards;
     }
+}
 
-    // Purpose:: Shuffle the deck of cards
-    public function shuffleCards() {
-        shuffle($this->arrCards);
+/**
+ * Shuffler class is responsible for shuffling the deck.
+ */
+class Shuffler
+{
+    public function shuffle(array $cards): array
+    {
+        $shuffledCards = $cards;
+        shuffle($shuffledCards);
+        return $shuffledCards;
     }
+}
 
-    // Purpose:: Get the list of cards in the deck
-    public function listCards() {
-        foreach($this->arrCards as $card) {
-            $this->str .= '<img src="../images/'.$card.'.jpg" height="80" width="80"/>&nbsp;';
-            if($card == '13c' || $card == '13d' || $card == '13h' || $card == '13s'){
-                $this->str .= '<br/><br/>';
-            }
-        }
-        return $this->str;
+/**
+ * HandDrawer class is responsible for drawing a hand from the deck.
+ */
+class HandDrawer
+{
+    public function drawHand(array $cards, int $handSize): array
+    {
+        $hand = array_slice($cards, 0, $handSize);
+        return $hand;
     }
+}
 
-    // Purpose:: Get a hand of five cards from the deck
-    public function getCardHand() {
-        $i = 0;
-        foreach($this->arrCards as $card) {
-            $this->cardHands[] = $card;
-            if($i == 4){
-                break;
-            }
-            $i++;    
-        }
-
+/**
+ * HandEvaluator class is responsible for evaluating the hand type.
+ */
+class HandEvaluator
+{
+    public function evaluateHand(array $hand): string
+    {
+        // Perform hand evaluation logic and return the hand type as a string
+        // Example logic to check for a straight or flush:
         // Extract the card values and suits from the drawn hand
-        foreach($this->cardHands as $value){
+        foreach($hand as $value){
             $length = strlen($value);
             if($length == 2){
-                $this->cardValue = str_split($value,1);
+                $cardValue = str_split($value,1);
             }else{
-                $this->cardValue = str_split($value,2);  
+                $cardValue = str_split($value,2);  
             }
 
-            $this->handCard[] = $this->cardValue[0];
-            $this->handSuit[] = $this->cardValue[1];
+            $handCard[] = $cardValue[0];
+            $handSuit[] = $cardValue[1];
         }
         
         // Check if the hand is a straight, a flush, or neither
-        $sResult = $this->isStraight($this->handCard);
-        $fResult = $this->isFlush($this->handSuit);
+        $sResult = $this->isStraight($handCard);
+        $fResult = $this->isFlush($handSuit);
+        $str = '';
 
-        for($i=0; $i < count($this->cardHands); $i++){
-            $this->straightArray[$this->handSuit[$i]] = $this->handCard[$i];
+        for($i=0; $i < count($hand); $i++){
+            $straightArray[$handSuit[$i]] = $handCard[$i];
         }  
 
         // Determine the type of hand based on straight and flush results
         if($sResult && $fResult){
-            sort($this->handCard);
-            if(in_array('13', $this->handCard) && in_array('1', $this->handCard)){
-                $firstValue = array_shift($this->handCard); 
-                array_push($this->handCard, $firstValue);        
+            sort($handCard);
+            if(in_array('13', $handCard) && in_array('1', $handCard)){
+                $firstValue = array_shift($handCard); 
+                array_push($handCard, $firstValue);        
             }
-            for($i=0; $i < count($this->cardHands); $i++){
-                $this->cardHands[$i] = $this->handCard[$i].$this->handSuit[$i];
+            for($i=0; $i < count($hand); $i++){
+                $hand[$i] = $handCard[$i].$handSuit[$i];
             }
-            $this->str .= 'Hand is straight flush';
+            $str .= 'Hand is straight flush';
         }elseif($sResult){
-            asort($this->straightArray);
-            if(in_array('13', $this->handCard) && in_array('1', $this->handCard)){
-                $firstValue = array_shift($this->handCard); 
-                array_push($this->handCard, $firstValue);        
+            asort($straightArray);
+            if(in_array('13', $handCard) && in_array('1', $handCard)){
+                $firstValue = array_shift($handCard); 
+                array_push($handCard, $firstValue);        
             }
             $i = 0;
-            foreach($this->straightArray as $key => $val){
-                $this->cardHands[$i] = $val.$key;
+            foreach($straightArray as $key => $val){
+                $hand[$i] = $val.$key;
                 $i++;
             }
-            $this->str .= 'Hand is straight';
+            $str .= 'Hand is straight';
         }else{
-            $this->str .= 'Drawn hand is neither straight nor straight flush. Please try again.';
+            $str .= 'Drawn hand is neither straight nor straight flush. Please try again.';
         }
 
-        $this->str .= '</br>';
+        $str .= '</br>';
 
         // Generate HTML representation of the drawn hand
-        foreach($this->cardHands as $card) {
-           $this->str .= '<img src="../images/'.$card.'.jpg" height="80" width="80"/>&nbsp;';
+        foreach($hand as $card) {
+           $str .= '<img src="../images/'.$card.'.jpg" height="80" width="80"/>&nbsp;';
         }
 
-        return $this->str;
+        return $str;
     }
 
     // Purpose:: Check if the card values form a straight sequence
-    public function isStraight($handCard){
+    public function isStraight(array $handCard): bool
+    {
         sort($handCard);
         if(in_array('13',$handCard) && in_array('1', $handCard)){
             array_shift($handCard); 
@@ -142,7 +132,8 @@ class cardDeck
     }
 
     // Purpose:: Check if the card suits are all the same
-    public function isFlush($handSuit){
+    public function isFlush(array $handSuit): bool
+    {
         $uCount = count(array_unique($handSuit));
         if($uCount == 1){
             return true;
@@ -151,4 +142,43 @@ class cardDeck
         }
     }
 }
+
+/**
+ * CardDeckFactory class is responsible for creating instances of related classes.
+ */
+class CardDeckFactory
+{
+    public static function createCardDeck(): CardDeck
+    {
+        // Initialize the deck of cards
+        $suits = ['c', 'd', 'h', 's'];
+        $cards = range(1, 13);
+
+        $arrCards = [];
+        foreach ($suits as $suit) {
+            foreach ($cards as $card) {
+                $arrCards[] = $card . $suit;
+            }
+        }
+
+        $cardDeck = new CardDeck($arrCards);
+        return $cardDeck;
+    }
+
+    public static function createShuffler(): Shuffler
+    {
+        return new Shuffler();
+    }
+
+    public static function createHandDrawer(): HandDrawer
+    {
+        return new HandDrawer();
+    }
+
+    public static function createHandEvaluator(): HandEvaluator
+    {
+        return new HandEvaluator();
+    }
+}
 ?>
+

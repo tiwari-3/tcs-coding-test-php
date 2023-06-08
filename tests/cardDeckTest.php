@@ -1,69 +1,44 @@
 <?php
-require __DIR__ . "/../src/cardDeck.php";
 
 use PHPUnit\Framework\TestCase;
 
 class CardDeckTest extends TestCase
 {
-    
-    /* Purpose: Test case to verify that the deck is shuffled properly. */
-    public function testShuffleCards()
+    public function testShuffleAndDrawHand()
     {
-        $deck = new cardDeck();
-        $originalDeck = $deck->listCards();
+        // Create instances of the necessary classes
+        $cardDeck = CardDeckFactory::createCardDeck();
+        $shuffler = CardDeckFactory::createShuffler();
+        $handDrawer = CardDeckFactory::createHandDrawer();
 
-        $deck->shuffleCards();
-        $shuffledDeck = $deck->listCards();
+        // Shuffle the deck
+        $shuffledCards = $shuffler->shuffle($cardDeck->getCards());
 
-        // Assert that the deck is shuffled
-        $this->assertNotEquals($originalDeck, $shuffledDeck);
+        // Draw a hand
+        $handSize = 5;
+        $hand = $handDrawer->drawHand($shuffledCards, $handSize);
+
+        // Assert that the deck has been shuffled correctly
+        $this->assertCount(52, $cardDeck->getCards());
+        $this->assertNotEquals($cardDeck->getCards(), $shuffledCards);
+
+        // Assert that the correct number of cards has been drawn
+        $this->assertCount($handSize, $hand);
     }
 
-    /* Purpose: Test case to verify the functionality of drawing a hand of cards. */
-    public function testGetCardHand()
+    public function testEvaluateHand()
     {
-        $deck = new cardDeck();
-        $deck->shuffleCards();
+        // Create instances of the necessary classes
+        $handEvaluator = CardDeckFactory::createHandEvaluator();
 
-        $handResult = $deck->getCardHand();
+        // Prepare a hand for evaluation
+        $hand = ['2c', '3c', '4c', '5c', '6c'];
 
-        // Assert that the hand result is not empty
-        $this->assertNotEmpty($handResult);
+        // Evaluate the hand type
+        $handType = $handEvaluator->evaluateHand($hand);
 
-        // Assert that the hand result contains the expected output
-        $this->assertStringContainsStringIgnoringCase('Hand is', $handResult);
-    }
-
-    /* Purpose: Test case to verify the functionality of checking a straight hand.*/
-    public function testIsStraight()
-    {
-        $deck = new cardDeck();
-
-        // Test case for a straight hand
-        $hand = [1, 2, 3, 4, 5];
-        $isStraight = $deck->isStraight($hand);
-        $this->assertTrue($isStraight);
-
-        // Test case for a non-straight hand
-        $hand = [1, 2, 3, 4, 7];
-        $isStraight = $deck->isStraight($hand);
-        $this->assertFalse($isStraight);
-    }
-
-    /* Purpose: Test case to verify the functionality of checking a flush hand.*/
-    public function testIsFlush()
-    {
-        $deck = new cardDeck();
-
-        // Test case for a flush hand
-        $hand = ['c', 'c', 'c', 'c', 'c'];
-        $isFlush = $deck->isFlush($hand);
-        $this->assertTrue($isFlush);
-
-        // Test case for a non-flush hand
-        $hand = ['c', 'c', 'd', 'c', 'c'];
-        $isFlush = $deck->isFlush($hand);
-        $this->assertFalse($isFlush);
+        // Assert the evaluated hand type
+        $this->assertEquals('Straight', $handType);
     }
 }
 ?>

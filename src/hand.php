@@ -1,17 +1,31 @@
 <?php
-// Include class card deck once
-include_once "cardDeck.php";
+require_once '../vendor/autoload.php';
 
-// Create an instance of the `cardDeck` class
-$object = new cardDeck();
+$cardDeck = CardDeckFactory::createCardDeck();
+$shuffler = CardDeckFactory::createShuffler();
+$handDrawer = CardDeckFactory::createHandDrawer();
+$handEvaluator = CardDeckFactory::createHandEvaluator();
 
-// Shuffle the deck of cards
-$object->shuffleCards();
+// Shuffle the deck
+$shuffledCards = $shuffler->shuffle($cardDeck->getCards());
 
-// Get a hand of five cards from the deck and check the type of hand
-$cardHandOutput = $object->getCardHand();
+// Draw a hand
+$handSize = 5;
+$hand = $handDrawer->drawHand($shuffledCards, $handSize);
 
-echo $cardHandOutput;
+// Evaluate the hand type
+$handType = $handEvaluator->evaluateHand($hand);
+
+// Display the hand and its type
+echo "Hand: " . implode(", ", $hand) . "<br>";
+echo "Hand Type: " . $handType;
+
+// Generate HTML representation of the drawn hand
+$str = '';
+foreach($hand as $card) {
+   $str .= '<img src="../images/'.$card.'.jpg" height="80" width="80"/>&nbsp;';
+}
+
 ?>
 <!DOCTYPE html>
 <html>

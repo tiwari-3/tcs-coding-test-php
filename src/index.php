@@ -1,14 +1,19 @@
 <?php
-// Include class card deck once
-include_once "cardDeck.php";
+require_once '../vendor/autoload.php';
 
-// Create an instance of the `cardDeck` class
-$object = new cardDeck();
+// Create card deck using card deck factory class
+$cardDeck = CardDeckFactory::createCardDeck();
 
-// Get the HTML representation of the list of cards in the deck
-$listOutput = $object->listCards(); 
+// Get card deck array
+$cardList = $cardDeck->getCards();
 
-echo $listOutput;
+// HTML representation of the list of cards in the deck
+foreach($cardList as $card) {
+	echo '<img src="../images/'.$card.'.jpg" height="80" width="80"/>&nbsp;';
+    if($card == '13c' || $card == '13d' || $card == '13h' || $card == '13s'){
+    	echo '<br/><br/>';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
