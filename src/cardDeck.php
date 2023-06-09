@@ -1,7 +1,5 @@
 <?php
 
-// Include the classes and code here...
-
 /**
  * CardDeck class represents the deck of cards.
  */
